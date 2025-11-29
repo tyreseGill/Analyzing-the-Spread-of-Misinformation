@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
-from utils.analyze_graph import compute_misinformation_risk, build_risk_summary, print_summary, get_most_influential_node
+from utils.analyze_graph import compute_misinformation_risk, build_risk_summary, print_summary, get_most_influential_node, compute_bow_tie
 
 
 def assign_colors(G: nx.Graph, page_type: dict) -> tuple:
@@ -114,12 +114,13 @@ def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, 
         node_color=[color_map[n] for n in H.nodes()],
         node_size=40,
         width=0.3,
+        edge_color="gray",
         with_labels=False
     )
     plt.show()
 
 
-def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, title: str, risk_assessment: bool=False):
+def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, title: str, risk_assessment: bool=False, bow_tie: bool=False):
     """
     Displays graph for single community.
     
@@ -129,6 +130,7 @@ def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, ti
         color_map: The color of the nodes.
         title: The title of the plot figure.
         risk_assessment: Flag indicating if sample of nodes should be colored based on importance.
+        bow_tie: Flag indicating if sample of nodes should be colored based on how they fit into bow-tie structure.
     """
     plt.title(title)
     H = G.subgraph(sampled_nodes).copy()
@@ -137,7 +139,6 @@ def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, ti
     if risk_assessment:
         color_map, type_to_color = color_nodes_by_risk(H)
 
-        # Create proxy artists for legend
         legend_handles = [
             mpatches.Patch(color=color, label=risk)
             for risk, color in type_to_color.items()
@@ -151,6 +152,22 @@ def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, ti
             fontsize=8
         )
         color_map = color_map.values()
+    elif bow_tie:
+        color_map, type_to_color = color_nodes_by_bow_tie(H)
+
+        legend_handles = [
+            mpatches.Patch(color=color, label=struct)
+            for struct, color in type_to_color.items()
+        ]
+
+        plt.legend(
+            handles=legend_handles,
+            loc='lower right',
+            title="Structure",
+            frameon=True,
+            fontsize=8
+        )
+        color_map = color_map.values()
 
     nx.draw(
         H,
@@ -158,12 +175,13 @@ def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, ti
         node_size=40,
         node_color=color_map,
         width=0.3,
+        edge_color="gray",
         with_labels=False,
     )
     plt.show()
 
 
-def color_nodes_by_risk(G: nx.Graph) -> list:
+def color_nodes_by_risk(G: nx.Graph) -> tuple[list, dict]:
     """
     Returns color map based on risk assessment for each node in graph.
 
@@ -211,7 +229,32 @@ def color_nodes_by_risk(G: nx.Graph) -> list:
     return color_map, type_to_color
 
 
-def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=False, color: str=None, risk_assessment: bool=False):
+def color_nodes_by_bow_tie(G: nx.Graph) -> tuple[list, dict]:
+    """
+    Returns color map based on risk assessment for each node in graph.
+
+    Args:
+        G: The graph which is to be colored based on risk.
+    """
+    nodes_to_structs = compute_bow_tie(G)
+    color_map = {}
+    type_to_color = {
+        "Core": "tab:orange",
+        "InnerShell": "tab:blue",
+        "OuterShell": "tab:green",
+        "Tendrils": "#FFD500",
+        "Tubes": "tab:brown",
+        "Disconnected": "tab:purple"
+    }
+            
+    for struct, nodes in nodes_to_structs.items():
+        for node in nodes:
+            color_map[node] = type_to_color[struct]
+
+    return color_map, type_to_color
+
+
+def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=False, color: str=None, risk_assessment: bool=False, bow_tie: bool=False):
     """
     Handles logic in visualizing graph.
 
@@ -221,6 +264,7 @@ def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=
         color_code: Flag indicating if multiple communities are to be plotted and given unique colors.
         color: The uniform color all nodes will take on.
         risk_assessment: Flag indicating if sample of nodes should be colored based on importance.
+        bow_tie: Flag indicating if sample of nodes should be colored based on how they fit into bow-tie structure.
     """
 
     page_type = None
@@ -248,6 +292,8 @@ def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=
 
         if risk_assessment:
             visualize_sample(G, sampled_nodes, color, title, risk_assessment)
+        elif bow_tie:
+            visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
         else:
             visualize_colored_sample(G, sampled_nodes, color_map, type_to_color, title)
     # Visualize a single community
@@ -255,5 +301,8 @@ def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=
         # Generic PageRank sampling (no categories)
         sampled_nodes = sample_by_pagerank(pr, k=sample_size)
 
-        visualize_sample(G, sampled_nodes, color, title, risk_assessment)
+        if risk_assessment:
+            visualize_sample(G, sampled_nodes, color, title, risk_assessment)
+        else:
+            visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
 

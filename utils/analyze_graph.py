@@ -242,3 +242,101 @@ def get_most_influential_node(G: nx.Graph, risk_scores: dict=None, pr: dict=None
     top_node = max(candidates, key=sort_key)
     return top_node
 
+
+def compute_bow_tie(G: nx.Graph) -> dict:
+    """
+    Computes an undirected analogue of the bow-tie structure.
+
+    Args:
+        G: The graph from which bow-tie will be inferred.
+    """
+
+    # 1. Identify CORE using k-core decomposition
+    core_nums = nx.core_number(G)
+    max_core = max(core_nums.values())
+
+    core = { n for n, k in core_nums.items() if k == max_core }
+
+    # 2. BFS layering outward from the core to shell indices
+    shell_index = {}
+    visited = set(core)
+    queue = list(core)
+    for n in core:
+        shell_index[n] = 0
+
+    i = 1
+    while queue:
+        next_queue = []
+        for u in queue:
+            for v in G.neighbors(u):
+                if v not in visited:
+                    visited.add(v)
+                    shell_index[v] = i
+                    next_queue.append(v)
+        queue = next_queue
+        i += 1
+
+    # Unvisited nodes = disconnected
+    disconnected = set(G.nodes()) - set(shell_index.keys())
+
+    # Shell definitions
+    inner_shell = { n for n, d in shell_index.items() if d == 1 }
+    outer_shell = { n for n, d in shell_index.items() if d >= 2 }
+
+    # 3. Identify TUBES (articulation + high betweenness + cross-shell)
+    articulation = set(nx.articulation_points(G))
+
+    # Approx betweenness for speed
+    btw = nx.betweenness_centrality(G, k=min(200, G.number_of_nodes()))
+    btw_thresh = np.percentile(list(btw.values()), 75)
+
+    tubes = set()
+    for u in articulation:
+        if btw[u] >= btw_thresh:
+            # Check if this articulation connects different shells
+            neighbor_shells = {shell_index.get(v, -1) for v in G.neighbors(u)}
+            if len(neighbor_shells) > 1:   # cross-shell connector
+                tubes.add(u)
+
+    # 4. Identify TENDRILS (low degree, NOT articulation points, 
+        # and NOT part of CORE or shells or shortest paths between high-core nodes)
+    # Candidate leaf-like nodes
+    degree = dict(G.degree())
+    leaflike = { n for n in G.nodes() if degree[n] <= 2 }
+
+    # Nodes used in shortest paths between high-core nodes (small sample for efficiency)
+    core_list = list(core)
+    key_path_nodes = set()
+    sample_size = min(len(core_list), 40)
+
+    # Sample core nodes randomly
+    sample_core = core_list[:sample_size]
+
+    for i in range(len(sample_core)-1):
+        try:
+            p = nx.shortest_path(G, sample_core[i], sample_core[ i+1 ])
+            key_path_nodes.update(p)
+        except:
+            pass
+
+    tendrils = {
+        n for n in leaflike
+        if n not in core
+        and n not in inner_shell
+        and n not in outer_shell
+        and n not in tubes
+        and n not in articulation
+        and n not in key_path_nodes
+        and n not in disconnected
+    }
+
+    return {
+        "Core": core,
+        "InnerShell": inner_shell,
+        "OuterShell": outer_shell,
+        "Tendrils": tendrils,
+        "Tubes": tubes,
+        "Disconnected": disconnected
+    }
+
+

@@ -59,6 +59,11 @@ def parse_args() -> dict:
         action="store_true",
         help="Colors nodes based on risk score."
     )
+    parser.add_argument(
+        "--bow_tie",
+        action="store_true",
+        help="Colors nodes based on how they fit in bow-tie structure."
+    )
 
     # Returns dictionary of the parsed arguments
     return vars(parser.parse_args())
@@ -131,6 +136,7 @@ def main():
     title = params["title"]
     sample_size = params["sample_size"]
     risk_assessment = params["risk_assessment"]
+    bow_tie = params["bow_tie"]
 
     G = None
 
@@ -146,10 +152,20 @@ def main():
         
         # Displays multiple communities with color-coding
         if "facebook_large" in csv_file:
-            visualize_graph(G, title, sample_size, color_code=True, risk_assessment=risk_assessment)
+            visualize_graph(G,
+                            title,
+                            sample_size,
+                            color_code=True,
+                            risk_assessment=risk_assessment,
+                            bow_tie=bow_tie)
         # Displays single community with uniform color
         else:
-            visualize_graph(G, title, sample_size, color=color, risk_assessment=risk_assessment)
+            visualize_graph(G,
+                            title,
+                            sample_size,
+                            color=color,
+                            risk_assessment=risk_assessment,
+                            bow_tie=bow_tie)
 
     
     # Check to ensure .csv graph data is given
