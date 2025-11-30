@@ -37,25 +37,28 @@ All dependencies are listed in `requirements.txt`
 
 ### Commands
 
-- *Command*:
+*Command*:
 ```bash
 python ./main.py data/facebook_large/musae_facebook_edges.csv --bow_tie --title "Facebook Bow-Tie Structure" --sample_size 400
 ```
+*Description*: Generates a graph consisting of the 400 highest-valued pages according to the PageRank algorithm and colors them based on how they fit into bow-tie structure.
+
 - *Output*:
 
 ![Bow Tie of FaceBook Structure](img/fb_bow_tie_structure.png)
 
 
 #### Risk Assessment
-- *Command*:
+*Command*:
 
 ```bash
 python ./main.py data/facebook_large/musae_facebook_edges.csv --risk_assessment --title "Facebook Risk-Distribution Structure" --sample_size 400
 ```
+*Description*: Generates a graph consisting of the 400 highest-valued pages according to the PageRank algorithm and colors them based on how much of a hazard they represent as spreaders of misinformation.
 
 - *Output 1*:
 
-![Bow Tie of FaceBook Structure](img/fb_bow_tie_structure.png)
+![Bow Tie of FaceBook Structure](img/fb_risk_structure.png)
 
 - *Output 2*:
 ```bash
