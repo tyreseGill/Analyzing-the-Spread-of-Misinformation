@@ -2,8 +2,7 @@ import argparse
 import sys
 import networkx as nx
 import pandas as pd
-import numpy as np
-from utils import file_exists, has_file_extension, file_empty, remove_trailing_digits, validate_color, visualize_graph
+from utils import file_exists, has_file_extension, file_empty, remove_trailing_digits, validate_color, visualize_graph, compute_misinformation_risk, get_most_influential_node, perform_cascade, animate_cascade
 
 
 class SafeArgumentParser(argparse.ArgumentParser):
@@ -36,7 +35,7 @@ def parse_args() -> dict:
     parser.add_argument(
         "csv_file_pathway",
         type=str,
-        help='The path to the inputted .csv graph file.'
+        help="The path to the inputted '.csv' graph file."
     )
     parser.add_argument(
         "--color",
@@ -64,6 +63,10 @@ def parse_args() -> dict:
         action="store_true",
         help="Colors nodes based on how they fit in bow-tie structure."
     )
+    parser.add_argument(
+        "--cascade",
+        action="store_true"
+    )
 
     # Returns dictionary of the parsed arguments
     return vars(parser.parse_args())
@@ -74,7 +77,7 @@ def verify_compatible_file(input_file: str, file_extension: str) -> bool:
     Checks to see if the file inputted is compatible with the program. If not, forces early return.
 
     Args:
-        input_file: The name of the .csv file containing graph data.
+        input_file: The name of the '.csv' file containing graph data.
         file_extension: The extension that a file is expected to end with.
     """
     if not input_file:
@@ -95,13 +98,13 @@ def read_csv_data(file_path: str) -> nx.Graph:
     Acts as gaurdrail when error occurs attempting to read file.
 
     Args:
-        file_path: The name of the .csv file containing graph data.
+        file_path: The name of the '.csv' file containing graph data.
     """
     # Perform early return if file is not compatible
     if not verify_compatible_file(file_path, ".csv"):
         return None
     
-    # If program reaches this point, the .csv file provided must be valid
+    # If program reaches this point, the '.csv' file provided must be valid
     try:
         df = pd.read_csv(file_path)
         column_names = df.columns
@@ -113,7 +116,7 @@ def read_csv_data(file_path: str) -> nx.Graph:
     
     # Perform early return if data is not compatible
     if nx.is_directed(G):
-        print("Error: The provided .csv graph must be undirected for this simulation.")
+        print("Error: The provided '.csv' graph must be undirected for this simulation.")
         return None
     
     if G.number_of_nodes() == 0:
@@ -121,7 +124,7 @@ def read_csv_data(file_path: str) -> nx.Graph:
         return None
     
     if not G:
-        print("Error: An issue arose attempting to read the provided .csv file. It may be incomplete.")
+        print("Error: An issue arose attempting to read the provided '.csv' file. It may be incomplete.")
         return None
     
     return G
@@ -137,6 +140,7 @@ def main():
     sample_size = params["sample_size"]
     risk_assessment = params["risk_assessment"]
     bow_tie = params["bow_tie"]
+    cascade = params["cascade"]
 
     G = None
 
@@ -152,7 +156,7 @@ def main():
         
         # Displays multiple communities with color-coding
         if "facebook_large" in csv_file:
-            visualize_graph(G,
+            H = visualize_graph(G,
                             title,
                             sample_size,
                             color_code=True,
@@ -160,17 +164,26 @@ def main():
                             bow_tie=bow_tie)
         # Displays single community with uniform color
         else:
-            visualize_graph(G,
+            H = visualize_graph(G,
                             title,
                             sample_size,
                             color=color,
                             risk_assessment=risk_assessment,
                             bow_tie=bow_tie)
+            
+        if cascade:
+            risk_scores = compute_misinformation_risk(H)
+            riskiest_node = get_most_influential_node(H, risk_scores)
+            perform_cascade(H, threshold=0.1, initial_adopters=[riskiest_node])
+            animate_cascade(H, title="Cascade Spread", interval=600)
+    else:
+        print("Error: A '.csv' file was not provided.")
+        return
 
     
     # Check to ensure .csv graph data is given
     if not G:
-        print("Error: Unable to read .csv file.")
+        print("Error: Unable to read '.csv' file.")
         return
 
 

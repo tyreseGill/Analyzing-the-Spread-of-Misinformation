@@ -77,7 +77,7 @@ def sample_by_page_type(G: nx.Graph, page_type: dict, pr: int, k_per_type: int=1
     return sampled
 
 
-def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, type_to_color: dict, title: str):
+def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, type_to_color: dict, title: str) -> nx.Graph:
     """
     Visualizes a sampled subgraph using category-based color coding.
     
@@ -119,8 +119,10 @@ def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, 
     )
     plt.show()
 
+    return H
 
-def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, title: str, risk_assessment: bool=False, bow_tie: bool=False):
+
+def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, title: str, risk_assessment: bool=False, bow_tie: bool=False) -> nx.Graph:
     """
     Displays graph for single community.
     
@@ -179,6 +181,8 @@ def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, ti
         with_labels=False,
     )
     plt.show()
+
+    return H
 
 
 def color_nodes_by_risk(G: nx.Graph) -> tuple[list, dict]:
@@ -254,7 +258,7 @@ def color_nodes_by_bow_tie(G: nx.Graph) -> tuple[list, dict]:
     return color_map, type_to_color
 
 
-def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=False, color: str=None, risk_assessment: bool=False, bow_tie: bool=False):
+def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=False, color: str=None, risk_assessment: bool=False, bow_tie: bool=False) -> nx.Graph:
     """
     Handles logic in visualizing graph.
 
@@ -291,18 +295,20 @@ def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=
         color_map, type_to_color = assign_colors(G, page_type)
 
         if risk_assessment:
-            visualize_sample(G, sampled_nodes, color, title, risk_assessment)
+            H = visualize_sample(G, sampled_nodes, color, title, risk_assessment)
         elif bow_tie:
-            visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
+            H = visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
         else:
-            visualize_colored_sample(G, sampled_nodes, color_map, type_to_color, title)
+            H = visualize_colored_sample(G, sampled_nodes, color_map, type_to_color, title)
     # Visualize a single community
     else:
         # Generic PageRank sampling (no categories)
         sampled_nodes = sample_by_pagerank(pr, k=sample_size)
 
         if risk_assessment:
-            visualize_sample(G, sampled_nodes, color, title, risk_assessment)
+            H = visualize_sample(G, sampled_nodes, color, title, risk_assessment)
         else:
-            visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
+            H = visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
+    
+    return H
 
