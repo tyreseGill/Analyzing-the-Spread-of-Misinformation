@@ -37,11 +37,23 @@ All dependencies are listed in `requirements.txt`
 
 ### Commands
 
+#### Normal Layout
+*Command*:
+```bash
+python ./main.py data/facebook_large/musae_facebook_edges.csv --title "Facebook Network" --sample_size 400
+```
+*Description*: Generates graph consisting of the 400 highest-valued pages according to the PageRank algorithm.
+
+- *Output*:
+
+![Normal Layout of FaceBook Structure](img/fb_normal_network.png)
+
+#### Bow-Tie Structure
 *Command*:
 ```bash
 python ./main.py data/facebook_large/musae_facebook_edges.csv --bow_tie --title "Facebook Bow-Tie Structure" --sample_size 400
 ```
-*Description*: Generates a graph consisting of the 400 highest-valued pages according to the PageRank algorithm and colors them based on how they fit into bow-tie structure.
+*Description*: Generates 400-node graph colored based on how they fit into bow-tie structure.
 
 - *Output*:
 
@@ -54,11 +66,11 @@ python ./main.py data/facebook_large/musae_facebook_edges.csv --bow_tie --title 
 ```bash
 python ./main.py data/facebook_large/musae_facebook_edges.csv --risk_assessment --title "Facebook Risk-Distribution Structure" --sample_size 400
 ```
-*Description*: Generates a graph consisting of the 400 highest-valued pages according to the PageRank algorithm and colors them based on how much of a hazard they represent as spreaders of misinformation.
+*Description*: Generates a 400-node graph colored based on how much of a hazard they represent as spreaders of misinformation.
 
 - *Output 1*:
 
-![Bow Tie of FaceBook Structure](img/fb_risk_structure.png)
+![Risk Structure of FaceBook Structure](img/fb_risk_structure.png)
 
 - *Output 2*:
 ```bash
