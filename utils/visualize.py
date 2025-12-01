@@ -34,7 +34,7 @@ def assign_colors(G: nx.Graph, page_type: dict) -> tuple:
             color_map[node] = type_to_color[page_type[node]]
         else:
             color_map[node] = "#cccccc"  # Default for missing labels
-            
+
     return color_map, type_to_color
 
 
@@ -53,7 +53,7 @@ def sample_by_pagerank(pr: dict, k: int) -> list:
 def sample_by_page_type(G: nx.Graph, page_type: dict, pr: int, k_per_type: int=100):
     """
     Samples nodes by category, selecting the top-ranked nodes within each page type according to PageRank.
-    
+
     Args:
         G: The full graph containing all nodes.
         page_type: A mapping of node_id to category string.
@@ -80,11 +80,11 @@ def sample_by_page_type(G: nx.Graph, page_type: dict, pr: int, k_per_type: int=1
 def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, type_to_color: dict, title: str) -> nx.Graph:
     """
     Visualizes a sampled subgraph using category-based color coding.
-    
+
     Args:
         G: The graph from which a subgraph will be generated from.
         sampled_nodes: IDs of nodes that are to be plotted.
-        color_map: A mapping of node_id to color representing each node’s assigned color.
+        color_map: A mapping of node_id to color representing each node's assigned color.
         type_to_color: A mapping of page_type to color used to build the legend.
         title: The title of the plot figure.
     """
@@ -125,7 +125,7 @@ def visualize_colored_sample(G: nx.Graph, sampled_nodes: list, color_map: list, 
 def visualize_sample(G: nx.Graph, sampled_nodes: list, color_map: str | list, title: str, risk_assessment: bool=False, bow_tie: bool=False) -> nx.Graph:
     """
     Displays graph for single community.
-    
+
     Args:
         G: The graph from which a subgraph will be generated from.
         sampled_nodes: The obtained nodes that are to be plotted.
@@ -220,13 +220,13 @@ def color_nodes_by_risk(G: nx.Graph) -> tuple[list, dict]:
         else:
             print("Error: Negative value detected!")
             return "tab:purple"
-            
+
     for node, risk_score in risk_scores.items():
         color_map[node] = assign_risk_color(risk_score)
 
     summary = build_risk_summary(G, risk_scores)
     print_summary(summary)
-    
+
     riskiest_node = get_most_influential_node(G, risk_scores)
     color_map[riskiest_node] = "tab:cyan"
 
@@ -250,7 +250,7 @@ def color_nodes_by_bow_tie(G: nx.Graph) -> tuple[list, dict]:
         "Tubes": "tab:brown",
         "Disconnected": "tab:purple"
     }
-            
+
     for struct, nodes in nodes_to_structs.items():
         for node in nodes:
             color_map[node] = type_to_color[struct]
@@ -309,6 +309,5 @@ def visualize_graph(G: nx.Graph, title: str, sample_size: int, color_code: bool=
             H = visualize_sample(G, sampled_nodes, color, title, risk_assessment)
         else:
             H = visualize_sample(G, sampled_nodes, color, title, bow_tie=bow_tie)
-    
-    return H
 
+    return H

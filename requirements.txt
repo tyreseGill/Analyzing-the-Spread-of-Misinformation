@@ -2,3 +2,5 @@ matplotlib
 networkx
 numpy
 pandas
+pillow
+scipy

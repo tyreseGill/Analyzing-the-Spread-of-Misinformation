@@ -105,6 +105,143 @@ top_risk_nodes: [1654, 10426, 21120, 4809, 11003, 21729, 11507, 19743, 21955, 18
 top_clustering_nodes: [(4275, 1.0), (8417, 1.0), (10500, 1.0), (20990, 1.0), (4760, 1.0), (4826, 1.0), (4907, 1.0), (1193, 1.0), (13525, 1.0), (3300, 1.0)]
 ```
 
-## Summary
+## Dynamic Blocking Intervention
 
+To demonstrate how reactive moderation can contain misinformation spread, we implement a **dynamic blocking solution** that simulates real-time platform intervention.
+
+### How Dynamic Blocking Works
+
+Unlike static blocking (which pre-selects nodes before the cascade), dynamic blocking **reacts to the actual spread**:
+
+1. **Detection Delay**: Platform detects adopters 1 round after they adopt (realistic detection lag)
+2. **Degree-Priority**: Blocks highest-degree adopters first (super-spreaders)
+3. **Budget-Respecting**: Never exceeds the specified blocking budget
+
+```
+Round 0: Seed node adopts
+Round 1: N nodes adopt → Platform detects seed (skip - it's the source)
+Round 2: M nodes adopt → Platform blocks highest-degree adopters from Round 1
+Round 3: Fewer adopt   → Platform blocks highest-degree adopters from Round 2
+...continues until cascade stalls or budget exhausted
+```
+
+### Blocking Commands
+
+*Default (5% budget)*:
+```bash
+python ./main.py data/facebook_large/musae_facebook_edges.csv --cascade --block --sample_size 500
+```
+
+*Custom budget (20% with per-round limit)*:
+```bash
+python ./main.py data/facebook_large/musae_facebook_edges.csv --cascade --block --block_pct 0.2 --block_per_round 6 --sample_size 500
+```
+
+*Options*:
+- `--block`: Enable dynamic blocking intervention
+- `--block_pct 0.05`: Maximum fraction of nodes to block (default: 5%)
+- `--block_per_round 3`: Max nodes to block per round (default: None = use entire budget ASAP)
+
+### Expected Output
+
+```
+============================================================
+DYNAMIC BLOCKING INTERVENTION
+Budget: 20.0% of nodes
+Per-round limit: 6 nodes
+============================================================
+
+>>> Running cascade WITHOUT blocking...
+
+=========== Round 0 ===========
+Previous adopters (1): [701]
+
+
+=========== Round 1 ===========
+Previous adopters (15): [14240, 22338, 13443, 9156, 325, 12677, 21572, 12521, 12203, 495]...
+
+
+=========== Round 2 ===========
+Previous adopters (47): [9858, 13443, 12677, 18040, 16400, 12177, 14228, 2837, 18079, 14240]...
+
+Stopping cascade: adoption rate 0.228 >= threshold 0.1.
+
+=========== Final Round 3 Adopters (114) ===========
+Total adopters: 114
+
+>>> Running cascade WITH dynamic blocking...
+
+=========== Round 0 ===========
+Previous adopters (1): [701]
+
+
+=========== Round 1 ===========
+Previous adopters (15): [14240, 22338, 13443, 9156, 325, 12677, 21572, 12521, 12203, 495]...
+
+  [Dynamic] Blocked 6 high-degree adopters from round 1
+
+=========== Round 2 ===========
+Previous adopters (21): [12677, 16400, 12177, 18079, 12837, 12203, 2229, 18615, 701, 61]...
+
+  [Dynamic] Blocked 6 high-degree adopters from round 2
+
+=========== Round 3 ===========
+Previous adopters (26): [18693, 12677, 8327, 909, 16400, 12177, 2323, 18079, 11809, 12203]...
+
+  [Dynamic] Blocked 6 high-degree adopters from round 3
+
+=========== Round 4 ===========
+Previous adopters (26): [18693, 12677, 8327, 14981, 11917, 16400, 12177, 18079, 11809, 2597]...
+
+  [Dynamic] Blocked 6 high-degree adopters from round 4
+No new adopters in round 5. Cascade stalled.
+
+=========== Final Round 4 Adopters (20) ===========
+Total adopters: 20
+
+============================================================
+INTERVENTION COMPARISON
+============================================================
+Total nodes in graph:      500
+Nodes blocked:             24 (4.8%)
+Strategy:                  DYNAMIC (degree-priority)
+
+────────────────────────────────────────────────────────────
+WITHOUT BLOCKING:
+  Final adopters:          114
+  Adoption rate:           22.8%
+  Cascade rounds:          3
+
+────────────────────────────────────────────────────────────
+WITH DYNAMIC BLOCKING:
+  Final adopters:          20
+  Adoption rate:           4.0%
+  Cascade rounds:          4
+
+────────────────────────────────────────────────────────────
+EFFECTIVENESS:
+  Adopters prevented:      94
+  Reduction:               82.5%
+============================================================
+```
+
+### Visualization
+
+| Without Blocking | With Dynamic Blocking |
+|:----------------:|:---------------------:|
+| ![No Blocking](img/nonblock_cascade_animation.gif) | ![With Blocking](img/cascade_animation.gif) |
+| *114 adopters (22.8%)* | *20 adopters (4.0%)* |
+
+In the animations:
+- **Gray circles**: Non-adopters
+- **Orange/red circles**: Adopters (darker = later rounds)
+- **Gray squares**: Blocked nodes (with blocking only)
+
+---
+
+## Summary
 This project analyzes Facebook Page–Page networks to identify structural vulnerabilities that enable misinformation to spread. Using core–periphery decomposition, articulation-point detection, centrality measures, and clustering analysis, the network is partitioned into meaningful structural regions such as core hubs, inner and outer shells, tubes, tendrils, and disconnected nodes. A custom misinformation risk score integrates influence and structural weakness indicators to highlight the highest-risk pages. Radial bow-tie visualization reveals how misinformation can flow from a dense internal core, through key structural bridges (tubes), and outward into peripheral communities. Overall, the project demonstrates how network structure shapes the propagation potential of misinformation in real social graphs.
+
+Using a Linear Threshold cascade model, we simulate how misinformation spreads through the network from a high-risk source node. The cascade demonstrates the importance of network structure in enabling rapid information diffusion through peer influence.
+
+The dynamic blocking intervention demonstrates that reactive moderation blocking high-degree spreaders as they are detected can dramatically reduce cascade spread, providing a realistic simulation of how platforms can contain misinformation in real-time.
