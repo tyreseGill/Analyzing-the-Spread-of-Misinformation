@@ -2,3 +2,4 @@ from .helpers import file_exists, has_file_extension, file_empty, get_csv_files,
 from .visualize import visualize_graph
 from .analyze_graph import get_most_influential_node, compute_misinformation_risk
 from .cascade import perform_cascade, animate_cascade
+from .sirs import initialize_sirs, run_sirs, animate_sirs

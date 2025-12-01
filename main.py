@@ -2,7 +2,7 @@ import argparse
 import sys
 import networkx as nx
 import pandas as pd
-from utils import file_exists, has_file_extension, file_empty, remove_trailing_digits, validate_color, visualize_graph, compute_misinformation_risk, get_most_influential_node, perform_cascade, animate_cascade
+from utils import file_exists, has_file_extension, file_empty, remove_trailing_digits, validate_color, visualize_graph, compute_misinformation_risk, get_most_influential_node, perform_cascade, animate_cascade, initialize_sirs, run_sirs, animate_sirs
 
 
 class SafeArgumentParser(argparse.ArgumentParser):
@@ -65,6 +65,10 @@ def parse_args() -> dict:
     )
     parser.add_argument(
         "--cascade",
+        action="store_true"
+    )
+    parser.add_argument(
+        "--sirs",
         action="store_true"
     )
 
@@ -141,6 +145,7 @@ def main():
     risk_assessment = params["risk_assessment"]
     bow_tie = params["bow_tie"]
     cascade = params["cascade"]
+    sirs = params["sirs"]
 
     G = None
 
@@ -176,6 +181,21 @@ def main():
             riskiest_node = get_most_influential_node(H, risk_scores)
             perform_cascade(H, threshold=0.1, initial_adopters=[riskiest_node])
             animate_cascade(H, title="Cascade Spread", interval=600)
+        
+        if sirs:
+            initialize_sirs(H, p_infected=0.02, seed=42)
+
+            history = run_sirs(
+                H,
+                beta=0.25,
+                gamma=0.1,
+                mu=0.05,
+                max_steps=50,
+                seed=123,
+                record_node_states=True   # REQUIRED for animation
+            )
+
+            animate_sirs(H, history["states"], save_path="img/sirs_simulation.gif")
     else:
         print("Error: A '.csv' file was not provided.")
         return
