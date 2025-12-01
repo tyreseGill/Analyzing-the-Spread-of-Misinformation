@@ -227,9 +227,15 @@ EFFECTIVENESS:
 
 ### Visualization
 
-![Cascade Animation](img/cascade_animation.gif)
+| Without Blocking | With Dynamic Blocking |
+|:----------------:|:---------------------:|
+| ![No Blocking](img/nonblock_cascade_animation.gif) | ![With Blocking](img/cascade_animation.gif) |
+| *114 adopters (22.8%)* | *20 adopters (4.0%)* |
 
-In the animation, blocked nodes appear as **gray squares** to distinguish them from regular nodes. Adopted nodes are shown in orange/red shades based on when they adopted.
+In the animations:
+- **Gray circles**: Non-adopters
+- **Orange/red circles**: Adopters (darker = later rounds)
+- **Gray squares**: Blocked nodes (with blocking only)
 
 ---
 

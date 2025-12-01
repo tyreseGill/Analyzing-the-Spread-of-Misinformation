@@ -272,8 +272,8 @@ def main():
             else:
                 # Original behavior - no blocking
                 perform_cascade(H, threshold=0.1, initial_adopters=[riskiest_node])
-                print("Saving cascade animation to img/cascade_animation.gif...")
-                animate_cascade(H, title="Cascade Spread", interval=600, save_path="img/cascade_animation.gif")
+                print("Saving cascade animation to img/nonblock_cascade_animation.gif...")
+                animate_cascade(H, title="Cascade Spread", interval=600, save_path="img/nonblock_cascade_animation.gif")
     else:
         print("Error: A .csv file was not provided.")
         return
