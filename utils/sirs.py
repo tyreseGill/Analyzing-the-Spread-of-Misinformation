@@ -3,9 +3,10 @@ import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+from utils.visualize import color_nodes_by_risk, color_nodes_by_bow_tie
 
 
-def initialize_sirs(G: nx.Graph, initial_infected=None, p_infected: float = 0.0, seed: int | None = None):
+def initialize_sirs(G: nx.Graph, initial_infected=None, p_infected: float = 0.0, seed: int = 42):
     """
     Initialize SIRS states on the graph.
 
@@ -38,7 +39,7 @@ def run_sirs(
     gamma: float,
     mu: float,
     max_steps: int = 50,
-    seed: int | None = None,
+    seed: int = 42,
     record_node_states: bool = False,
 ):
     """
@@ -147,89 +148,117 @@ def run_sirs(
     return history
 
 
-def animate_sirs(G, states_history, title="SIRS Animation", interval=800, save_path=None):
+def animate_sirs(
+    G,
+    states_history,
+    title="SIRS Animation",
+    interval=800,
+    save_path=None,
+    risk_assessment=False,
+    bow_tie=False
+):
     """
-    Animate an SIRS (Susceptible-Infected-Recovered-Susceptible) simulation.
+    Animate an SIRS process on the SAME color scheme used in visualize_sample().
+    Susceptible (S), Infected (I), and Recovered (R) override the base colors.
 
     Args:
-        G (nx.Graph): Graph whose nodes have "state" values in S/I/R.
-        states_history: List of dicts representing node->state at each time step.
-                        (Output from run_sirs(..., record_node_states=True))
-        title (str): Title of animation window.
-        interval (int): Delay (ms) between frames.
-        save_path (str): If provided, saves animation (mp4 or gif).
+        G: Graph (subgraph H) with nodes and positions.
+        states_history: Output from run_sirs(..., record_node_states=True)
+        risk_assessment: If True, use risk-based color map as baseline.
+        bow_tie: If True, use bow-tie color map as baseline.
     """
 
-    # Fixed layout to prevent jitter
-    pos = nx.spring_layout(G, seed=42)
+    # --- FIXED LAYOUT FOR CONSISTENCY ---
+    pos = nx.spring_layout(G, k=0.95, iterations=50, seed=42)
 
-    # Figure
-    fig, ax = plt.subplots(figsize=(8, 6))
+    # --- BASE COLOR MAP (from visualization) ---
+    if risk_assessment:
+        base_color_map, type_to_color = color_nodes_by_risk(G)
+    elif bow_tie:
+        base_color_map, type_to_color = color_nodes_by_bow_tie(G)
+    else:
+        # default: uniform color
+        base_color_map = {n: "tab:blue" for n in G.nodes()}
+        type_to_color = {"Nodes": "tab:blue"}
 
-    # Color mapping for S/I/R
+    # --- SIRS STATE COLORS ---
     STATE_COLORS = {
-        "S": "#d3d3d3",   # light gray
-        "I": "red",        # infected
-        "R": "green"       # recovered
+        "S": None,          # uses baseline color
+        "I": "red",         # infected overrides
+        "R": "green"        # recovered overrides
     }
+
+    # --- FIGURE SETUP ---
+    fig, ax = plt.subplots(figsize=(8, 6))
 
     # --- Frame update function ---
     def update(frame):
         ax.clear()
-        ax.set_title(f"{title}\nStep {frame}")
+        ax.set_title(f"{title}\nStep {frame}", fontsize=12)
 
-        # Current state snapshot
+        # States at this time step
         state = states_history[frame]
 
-        # Separate nodes by state
-        S_nodes = [n for n in G if state[n] == "S"]
-        I_nodes = [n for n in G if state[n] == "I"]
-        R_nodes = [n for n in G if state[n] == "R"]
+        # Build per-node colors combining baseline + SIRS state
+        frame_colors = []
+        for node in G.nodes():
+            s = state[node]                # S, I, or R
+            if STATE_COLORS[s] is None:
+                frame_colors.append(base_color_map[node])
+            else:
+                frame_colors.append(STATE_COLORS[s])
 
-        # Draw susceptible first (background)
-        if S_nodes:
-            nx.draw_networkx_nodes(G, pos, nodelist=S_nodes,
-                                   node_color=STATE_COLORS["S"],
-                                   node_size=50, ax=ax)
+        # Draw the graph
+        nx.draw(
+            G,
+            pos,
+            nodelist=list(G.nodes()),
+            node_color=frame_colors,
+            node_size=70,
+            edge_color="gray",
+            width=0.3,
+            with_labels=False,
+            ax=ax,
+        )
 
-        # Draw recovered next
-        if R_nodes:
-            nx.draw_networkx_nodes(G, pos, nodelist=R_nodes,
-                                   node_color=STATE_COLORS["R"],
-                                   node_size=70, ax=ax)
-
-        # Draw infected last (on top)
-        if I_nodes:
-            nx.draw_networkx_nodes(G, pos, nodelist=I_nodes,
-                                   node_color=STATE_COLORS["I"],
-                                   node_size=100,
-                                   edgecolors="black",
-                                   linewidths=0.7,
-                                   ax=ax)
-
-        # Draw edges last
-        nx.draw_networkx_edges(G, pos, alpha=0.3, width=0.5, ax=ax)
-
-        # Add legend
+        # --- ADD LEGEND ---
         from matplotlib.lines import Line2D
-        legend_handles = [
+
+        legend_entries = []
+
+        # If using risk or bowtie, show that legend first
+        for label, color in type_to_color.items():
+            legend_entries.append(
+                Line2D([0], [0], marker='o', color='w',
+                       markerfacecolor=color, markersize=8,
+                       label=label)
+            )
+
+        # Then add SIRS legend
+        legend_entries.extend([
             Line2D([0], [0], marker='o', color='w',
-                   markerfacecolor=STATE_COLORS["S"],
+                   markerfacecolor=STATE_COLORS["S"] or "gray",
                    markersize=8, label='S (Susceptible)'),
 
             Line2D([0], [0], marker='o', color='w',
                    markerfacecolor=STATE_COLORS["I"],
-                   markeredgecolor='black',
+                   markeredgecolor="black",
                    markersize=8, label='I (Infected)'),
 
             Line2D([0], [0], marker='o', color='w',
                    markerfacecolor=STATE_COLORS["R"],
                    markersize=8, label='R (Recovered)')
-        ]
+        ])
 
-        ax.legend(handles=legend_handles, loc='lower right', fontsize=8)
+        ax.legend(
+            handles=legend_entries,
+            loc="lower right",
+            fontsize=8,
+            frameon=True,
+            title="Legend"
+        )
 
-    # Build animation
+    # --- ANIMATION OBJECT ---
     ani = animation.FuncAnimation(
         fig,
         update,
@@ -238,14 +267,20 @@ def animate_sirs(G, states_history, title="SIRS Animation", interval=800, save_p
         repeat=False
     )
 
-    # Save or show
+    # --- SAVING OR SHOWING ---
     if save_path:
-        ani.save(save_path, writer="ffmpeg", dpi=150)
-        ani.save(save_path, writer="pillow", dpi=150)
+        ext = save_path.lower().split(".")[-1]
+        if ext == "gif":
+            ani.save(save_path, writer="pillow", dpi=150)
+        elif ext == "mp4":
+            try:
+                ani.save(save_path, writer="ffmpeg", dpi=150)
+            except:
+                print("FFmpeg not found, saving as GIF instead.")
+                save_path = save_path.replace(".mp4", ".gif")
+                ani.save(save_path, writer="pillow", dpi=150)
         print(f"Saved animation to {save_path}")
-
     else:
-
         plt.show()
 
     return ani
