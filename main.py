@@ -1,7 +1,8 @@
 import argparse
-import sys
 import networkx as nx
+import os
 import pandas as pd
+import sys
 from utils import file_exists, has_file_extension, file_empty, remove_trailing_digits, validate_color, visualize_graph, compute_misinformation_risk, get_most_influential_node, perform_cascade, animate_cascade, initialize_sirs, run_sirs, animate_sirs
 
 
@@ -33,10 +34,11 @@ def parse_args() -> dict:
 
     # Defines expected arguments and behavior for CLI
     parser.add_argument(
-        "csv_file_pathway",
+        "file_path",
         type=str,
-        help="The path to the inputted '.csv' graph file."
+        help="The path to an input graph file (.csv, .edges, etc.)."
     )
+
     parser.add_argument(
         "--color",
         type=str,
@@ -76,69 +78,72 @@ def parse_args() -> dict:
     return vars(parser.parse_args())
 
 
-def verify_compatible_file(input_file: str, file_extension: str) -> bool:
-    """
-    Checks to see if the file inputted is compatible with the program. If not, forces early return.
-
-    Args:
-        input_file: The name of the '.csv' file containing graph data.
-        file_extension: The extension that a file is expected to end with.
-    """
+def verify_file(input_file: str) -> bool:
     if not input_file:
         print("Error: No file path provided.")
-        return False
-    if not has_file_extension(input_file, file_extension):
         return False
     if not file_exists(input_file):
         return False
     if file_empty(input_file):
         return False
-    
     return True
 
 
-def read_csv_data(file_path: str) -> nx.Graph:
+def read_graph(file_path: str) -> nx.Graph:
     """
-    Acts as gaurdrail when error occurs attempting to read file.
+    Reads a graph from .csv, .edges, .txt, .edgelist, .gml, or .graphml files.
+    Automatically detects type based on extension.
+    """
 
-    Args:
-        file_path: The name of the '.csv' file containing graph data.
-    """
-    # Perform early return if file is not compatible
-    if not verify_compatible_file(file_path, ".csv"):
+    if not verify_file(file_path):
         return None
-    
-    # If program reaches this point, the '.csv' file provided must be valid
+
+    ext = os.path.splitext(file_path)[1].lower()
+
     try:
-        df = pd.read_csv(file_path)
-        column_names = df.columns
-        src_tar_substr = remove_trailing_digits(column_names[0])
-        G = nx.from_pandas_edgelist(df, source=f"{src_tar_substr}1", target=f"{src_tar_substr}2", create_using=nx.Graph())
+        # ----- CSV file (edge list stored in columns) -----
+        if ext == ".csv":
+            df = pd.read_csv(file_path)
+            cols = df.columns
+            src = cols[0]
+            dst = cols[1]
+            G = nx.from_pandas_edgelist(df, source=src, target=dst)
+            return G
+
+        # ----- SNAP / GEMSEC edge list (.edges) -----
+        elif ext == ".edges":
+            G = nx.read_edgelist(file_path, nodetype=int)
+            return G
+
+        # ----- Generic whitespace edge list -----
+        elif ext in [".txt", ".edgelist"]:
+            G = nx.read_edgelist(file_path)
+            return G
+
+        # ----- GraphML -----
+        elif ext == ".graphml":
+            return nx.read_graphml(file_path)
+
+        # ----- GML -----
+        elif ext == ".gml":
+            return nx.read_gml(file_path)
+
+        else:
+            print(f"Error: Unsupported file extension '{ext}'.")
+            print("Supported: .csv, .edges, .txt, .edgelist, .gml, .graphml")
+            return None
+
     except Exception as e:
-        print(f'Error: An issue occurred attempting to read "{file_path}": {e}.')
+        print(f"Error reading file '{file_path}': {e}")
         return None
-    
-    # Perform early return if data is not compatible
-    if nx.is_directed(G):
-        print("Error: The provided '.csv' graph must be undirected for this simulation.")
-        return None
-    
-    if G.number_of_nodes() == 0:
-        print("Error: The graph is empty.")
-        return None
-    
-    if not G:
-        print("Error: An issue arose attempting to read the provided '.csv' file. It may be incomplete.")
-        return None
-    
-    return G
+
 
 
 def main():
     params = parse_args()
 
     # Extracts parsed arguments
-    csv_file = params["csv_file_pathway"]
+    file_path = params["file_path"]
     color = params["color"]
     title = params["title"]
     sample_size = params["sample_size"]
@@ -153,14 +158,25 @@ def main():
     if color:
         color = validate_color(color)
 
-    if csv_file:
-        G = read_csv_data(csv_file)
+    if file_path:
+        G = read_graph(file_path)
 
-        # Remove self-loops
+        # Check to ensure .csv graph data is given
+        if not G:
+            print("Error: Unable to read file.")
+            return
+
+        if nx.is_directed(G):
+            G = G.to_undirected()
+
         G.remove_edges_from(nx.selfloop_edges(G))
+
+        if G.number_of_nodes() == 0:
+            print("Error: Graph is empty.")
+            return
         
         # Displays multiple communities with color-coding
-        if "facebook_large" in csv_file:
+        if "facebook_large" in file_path:
             H = visualize_graph(G,
                             title,
                             sample_size,
@@ -190,20 +206,22 @@ def main():
                 beta=0.25,
                 gamma=0.1,
                 mu=0.05,
+                seed=42,
                 max_steps=50,
-                seed=123,
-                record_node_states=True   # REQUIRED for animation
+                record_node_states=True
             )
 
-            animate_sirs(H, history["states"], save_path="img/sirs_simulation.gif")
+            animate_sirs(
+                H,
+                history["states"],
+                title="SIRS Spread",
+                interval=600,
+                save_path="img/sirs.gif",
+                risk_assessment=risk_assessment,
+                bow_tie=bow_tie
+            )
     else:
-        print("Error: A '.csv' file was not provided.")
-        return
-
-    
-    # Check to ensure .csv graph data is given
-    if not G:
-        print("Error: Unable to read '.csv' file.")
+        print("Error: A file was not provided.")
         return
 
 
