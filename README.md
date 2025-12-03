@@ -22,11 +22,7 @@ Additionally, we also used the fb-pages-politician Network from:
 ```bash
 Rossi, R. A., & Ahmed, N. K. (2015). The Network Data Repository with Interactive Graph Analytics and Visualization. AAAI. Retrieved from https://networkrepository.com
 ```
-to illustrate the impact of echo chambers and information spread in Facebook. This is available via the [Network Repository](https://networkrepository.com/fb-pages-politician.php). This same page also cites 
-```bash
-Rozemberczki, B., Davies, R., Sarkar, R., & Sutton, C. (2019). GEMSEC: Graph Embedding with Self Clustering. Proceedings of the 2019 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining 2019, 65–72. ACM.
-```
-which illustrates self-cluster relationships.
+to illustrate the impact of echo chambers and information spread in Facebook. This is available via the [Network Repository](https://networkrepository.com/fb-pages-politician.php).
 
 ## Requirements
 
