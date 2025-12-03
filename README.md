@@ -1,4 +1,4 @@
-# Real-Life Social Network Challenge: Misinformation
+# Real-Life Social Network Challenge: Misinformation on FaceBook
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
 [![Matplotlib](https://img.shields.io/pypi/v/matplotlib?label=Matplotlib&color=orange&logo=plotly&logoColor=white)](https://matplotlib.org/)
@@ -6,10 +6,17 @@
 [![NumPy](https://img.shields.io/pypi/v/numpy?label=NumPy&color=blue&logo=numpy&logoColor=white)](https://numpy.org/)
 [![Pandas](https://img.shields.io/pypi/v/pandas?label=Pandas&color=blue&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 
-### Team Members: TBA
+### Team Members: Berit Cheema, Tyrese Gill, Liam Gines, Winston Nguyen, Azim Qudrat, Nick Zanaboni
 
 ## Description
 This project analyzes real-world Facebook Page–Page networks to identify structural weak points that enable misinformation to spread through social graphs. Using graph-theoretic tools and network science techniques, the project constructs a full misinformation-risk assessment and structural analysis to identify where misinformation is most likely to originate from and spread.
+
+## Attributions to Datasets Used
+This project uses the Facebook Large Page-Page Network from:
+```bash
+Rozemberczki, B., Allen, C., & Sarkar, R. (2021). Multi-scale Attributed Node Embedding. arXiv [Cs.LG]. Retrieved from http://arxiv.org/abs/1909.13021
+```
+which is available via Stanford's [SNAP](https://snap.stanford.edu/data/facebook-large-page-page-network.html).
 
 ## Requirements
 
