@@ -12,11 +12,21 @@
 This project analyzes real-world Facebook Page–Page networks to identify structural weak points that enable misinformation to spread through social graphs. Using graph-theoretic tools and network science techniques, the project constructs a full misinformation-risk assessment and structural analysis to identify where misinformation is most likely to originate from and spread.
 
 ## Attributions to Datasets Used
-This project uses the Facebook Large Page-Page Network from:
+This project uses the Facebook Large Page-Page Network from
 ```bash
 Rozemberczki, B., Allen, C., & Sarkar, R. (2021). Multi-scale Attributed Node Embedding. arXiv [Cs.LG]. Retrieved from http://arxiv.org/abs/1909.13021
 ```
-which is available via Stanford's [SNAP](https://snap.stanford.edu/data/facebook-large-page-page-network.html).
+to illustrate inter-cluster relationships in Facebook. This is available via Stanford's [SNAP](https://snap.stanford.edu/data/facebook-large-page-page-network.html).
+
+Additionally, we also used the fb-pages-politician Network from:
+```bash
+Rossi, R. A., & Ahmed, N. K. (2015). The Network Data Repository with Interactive Graph Analytics and Visualization. AAAI. Retrieved from https://networkrepository.com
+```
+to illustrate the impact of echo chambers and information spread in Facebook. This is available via the [Network Repository](https://networkrepository.com/fb-pages-politician.php). This same page also cites 
+```bash
+Rozemberczki, B., Davies, R., Sarkar, R., & Sutton, C. (2019). GEMSEC: Graph Embedding with Self Clustering. Proceedings of the 2019 IEEE/ACM International Conference on Advances in Social Networks Analysis and Mining 2019, 65–72. ACM.
+```
+which illustrates self-cluster relationships.
 
 ## Requirements
 
@@ -111,6 +121,27 @@ top_risk_nodes: [1654, 10426, 21120, 4809, 11003, 21729, 11507, 19743, 21955, 18
 =========== Echo Chambers ===========
 top_clustering_nodes: [(4275, 1.0), (8417, 1.0), (10500, 1.0), (20990, 1.0), (4760, 1.0), (4826, 1.0), (4907, 1.0), (1193, 1.0), (13525, 1.0), (3300, 1.0)]
 ```
+
+#### Political Parties
+*Command*:
+
+```bash
+python ./political_parties.py
+```
+*Description*: Runs `political_parties.py` to generate graph representative of the Facebook pages of politicans which has been segregated into two communities representing political parties and illustrating the echo chamber effect.
+
+- *Output 1*: Facebook Politician Pages Segregated into Two Parties
+
+![Facebook Politicians Graph Segregated into Two Parties](img/fb_political_parties.png)
+
+- *Output 2*: Cascade Within a Political Party
+
+![Cascade Within Political Party](img/cascade_political_parties.gif)
+
+- *Output 3*: Cascade Within a Political Party (w/ Dynamic Blocking)
+
+![Cascade Within Political Party w/ Dynamic Blocking](img//dynamic_blocking_political_parties.gif)
+
 
 ## Dynamic Blocking Intervention
 
