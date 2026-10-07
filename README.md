@@ -1,51 +1,83 @@
-# Real-Life Social Network Challenge: Misinformation on FaceBook
+<div align="center">
+    <h1>Real-Life Social Network Challenge: Misinformation on FaceBook</h1>
+    <img src="./img/network-analysis-hero.drawio.png">
+    <p>
+      Applying graph analytics to model assess network resilience against misinformation spread on social media.
+    </p>
+</div>
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python&logoColor=white)](https://www.python.org/)
-[![Matplotlib](https://img.shields.io/pypi/v/matplotlib?label=Matplotlib&color=orange&logo=plotly&logoColor=white)](https://matplotlib.org/)
-[![NetworkX](https://img.shields.io/pypi/v/networkx?label=NetworkX&color=blue&logo=python&logoColor=white)](https://networkx.org/)
-[![NumPy](https://img.shields.io/pypi/v/numpy?label=NumPy&color=blue&logo=numpy&logoColor=white)](https://numpy.org/)
-[![Pandas](https://img.shields.io/pypi/v/pandas?label=Pandas&color=blue&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About the Project</a>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li>
+          <a href="#prerequisites">Prerequisites</a>
+        </li>
+        <li>
+          <a href="#installation">Installation</a>
+        </li>
+        <li>
+          <a href="#commands">Commands</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#summary">Summary</a>
+    </li>
+    <li>
+      <a href="#acknowledgements">Acknowledgements</a>
+    </li>
+  </ol>
+</details>
 
-### Team Members: Berit Cheema, Tyrese Gill, Liam Gines, Winston Nguyen, Azim Qudrat, Nick Zanaboni
-
-## Description
+## About the Project
 This project analyzes real-world Facebook Page–Page networks to identify structural weak points that enable misinformation to spread through social graphs. Using graph-theoretic tools and network science techniques, the project constructs a full misinformation-risk assessment and structural analysis to identify where misinformation is most likely to originate from and spread.
 
-## Attributions to Datasets Used
-This project uses the Facebook Large Page-Page Network from
-```bash
-Rozemberczki, B., Allen, C., & Sarkar, R. (2021). Multi-scale Attributed Node Embedding. arXiv [Cs.LG]. Retrieved from http://arxiv.org/abs/1909.13021
-```
-to illustrate inter-cluster relationships in Facebook. This is available via Stanford's [SNAP](https://snap.stanford.edu/data/facebook-large-page-page-network.html).
+### Built With
 
-Additionally, we also used the fb-pages-politician Network from:
-```bash
-Rossi, R. A., & Ahmed, N. K. (2015). The Network Data Repository with Interactive Graph Analytics and Visualization. AAAI. Retrieved from https://networkrepository.com
-```
-to illustrate the impact of echo chambers and information spread in Facebook. This is available via the [Network Repository](https://networkrepository.com/fb-pages-politician.php).
+#### Programming Languages
+- [![Python][Python-icon]][Python-url]
 
-## Requirements
+#### Essential Libraries
+- [![Matplotlib][Matplotlib-icon]][Matplotlib-url]
+- [![NetworkX][NetworkX-icon]][NetworkX-url]
+- [![Numpy][Numpy-icon]][Numpy-url]
+- [![Pandas][Pandas-icon]][Pandas-url]
+- [![Pillow][Pillow-icon]][Pillow-url]
+- [![Scipy][Scipy-icon]][Scipy-url]
 
-- Python 3.10+
-- Numpy
-- NetworkX
-- Matplotlib
-- Pandas
+## Getting Started
 
-All dependencies are listed in `requirements.txt`
+### Prerequisites
 
+Before starting, ensure that you have access to:
 
-## Usage Instructions
-1. Download python from the official website [https://www.python.org/downloads/](https://www.python.org/downloads/) if you have not already done so.
-2. Clone/download a copy of this repository.
-3. Open your terminal and navigate to the project folder containing "`page_rank.py`".
-4. Create a virtual environment within the folder by typing in `python -m venv venv` and pressing enter.
-    - Confirm that the `venv/` folder exists with: `ls` for Linux/macOs or `dir` for Windows.
-5. Activate the environment
-    - On Windows, this is done via: `venv\Scripts\Activate`.
-    - On Linux/macOS, this is done via: `source venv/bin/activate`.
-6. Install the necessary packages with into the environment: `pip install -r requirements.txt`.
-7. Run the program by running the example commands below.
+- Python 3.11 or later
+
+> [!NOTE]
+> Download python from the official website [https://www.python.org/downloads/](https://www.python.org/downloads/) if you have not already done so.
+
+### Installation
+
+1. Clone/download a copy of this repository.
+2. Open your terminal and navigate to the project folder containing "`page_rank.py`".
+3. Create a virtual environment within the folder by typing in `python -m venv venv` and pressing enter.
+
+> [!NOTE]
+> Confirm that the `venv/` folder exists with: `ls` for Linux/macOs or `dir` for Windows.
+
+4. Activate the environment
+
+> [!NOTE]
+> Windows users run `venv\Scripts\Activate` while those on Linux/macOS should run `source venv/bin/activate`.
+
+5. Install the necessary packages with into the environment: `pip install -r requirements.txt`.
+6. Run the program by running the example commands below.
 
 
 ### Commands
@@ -72,6 +104,8 @@ python ./main.py data/facebook_large/musae_facebook_edges.csv --bow_tie --title 
 
 ![Bow Tie of FaceBook Structure](img/fb_bow_tie_structure.png)
 
+> [!NOTE]
+> A [bow-tie structure](https://en.wikipedia.org/wiki/Bow-tie_diagram) is a concept in graph theory used to organize a network into components based on how they connect with one another, in order to gain a broad understanding of the flow of data in a given network. In this visualization, each Facebook page is classified according to its structural role within the network rather than its page category. This analysis provides a high-level view of network topology, highlighting influential communities and areas that may act as bridges or isolated clusters within the network.
 
 #### Risk Assessment
 *Command*:
@@ -279,3 +313,49 @@ This project analyzes Facebook Page–Page networks to identify structural vulne
 Using a Linear Threshold cascade model, we simulate how misinformation spreads through the network from a high-risk source node. The cascade demonstrates the importance of network structure in enabling rapid information diffusion through peer influence.
 
 The dynamic blocking intervention demonstrates that reactive moderation blocking high-degree spreaders as they are detected can dramatically reduce cascade spread, providing a realistic simulation of how platforms can contain misinformation in real-time.
+
+## Acknowledgements
+
+[![SNAP][SNAP-icon]][SNAP-url]
+
+- This project uses the Facebook Large Page-Page Network from `Rozemberczki, B., Allen, C., & Sarkar, R. (2021). Multi-scale Attributed Node Embedding. arXiv [Cs.LG]. Retrieved from http://arxiv.org/abs/1909.13021` to illustrate inter-cluster relationships in Facebook.
+
+[![Network-Repository][Network-Repository-icon]][Network-Repository-url]
+
+- Additionally, we also used the fb-pages-politician Network from `Rossi, R. A., & Ahmed, N. K. (2015). The Network Data Repository with Interactive Graph Analytics and Visualization. AAAI. Retrieved from https://networkrepository.com` to illustrate the impact of echo chambers and information spread in Facebook.
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+<!-- Programming Languages -->
+[CSS-icon]: https://img.shields.io/badge/CSS-639?style=for-the-badge&logo=css&logoColor=fff
+[CSS-url]: https://developer.mozilla.org/en-US/docs/Web/CSS
+[JavaScript-icon]: https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=000
+[JavaScript-url]: https://developer.mozilla.org/en-US/docs/Web/JavaScript
+[Jupyter-icon]: https://img.shields.io/badge/Jupyter-ffffff?style=for-the-badge&logo=Jupyter
+[Jupyter-url]: https://jupyter.org/
+[Python-icon]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
+[Python-url]: https://www.python.org/
+
+<!-- Libraries -->
+[Matplotlib-icon]: https://custom-icon-badges.demolab.com/badge/Matplotlib-71D291?logo=matplotlib&logoColor=fff
+[Matplotlib-url]: https://matplotlib.org/
+[NetworkX-icon]: https://img.shields.io/badge/NetworkX-2E8B57
+[NetworkX-url]: https://networkx.org/
+[Numpy-icon]: https://img.shields.io/badge/NumPy-4DABCF?logo=numpy&logoColor=fff
+[Numpy-url]: https://numpy.org/
+[Pandas-icon]: https://img.shields.io/badge/Pandas-150458?logo=pandas&logoColor=fff
+[Pandas-url]: https://pandas.pydata.org/
+[Pillow-icon]: https://img.shields.io/badge/Pillow-3776AB?logo=python&logoColor=white
+[Pillow-url]: https://python-pillow.org/
+[Scipy-icon]: https://img.shields.io/badge/SciPy-8CAAE6?logo=scipy&logoColor=whitescipy.org/
+[Scipy-url]: https://scipy.org/
+
+
+
+<!-- Acknowledgements -->
+[SNAP-icon]: https://img.shields.io/badge/SNAP-Dataset%20Source-8C1515?style=for-the-badge
+[SNAP-url]: https://snap.stanford.edu/data/facebook-large-page-page-network.html
+[Network-Repository-icon]: https://img.shields.io/badge/Network%20Repository-Dataset%20Source-005A9C?style=for-the-badge
+[Network-Repository-url]: https://networkrepository.com/fb-pages-politician.php
