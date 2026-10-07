@@ -36,7 +36,10 @@
 </details>
 
 ## About the Project
-This project analyzes real-world Facebook Page–Page networks to identify structural weak points that enable misinformation to spread through social graphs. Using graph-theoretic tools and network science techniques, the project constructs a full misinformation-risk assessment and structural analysis to identify where misinformation is most likely to originate from and spread.
+This project applies graph theory and network-science techniques to analyze Facebook Page-to-Page networks and evaluate misinformation risk. Through structural analysis, risk scoring, bow-tie decomposition, and cascade-failure simulations, the project identifies influential nodes and network weaknesses that could enable rapid misinformation spread.
+ 
+> [!NOTE]
+> Misinformation propagation was modeled using the Linear Threshold Model. However, we were unable to identify a widely accepted research-based threshold representing the probability of misinformation spreading from one individual to another across social networks. As a result, a threshold of **10%** was selected for illustrative purposes to demonstrate cascade behavior and network diffusion dynamics rather than to represent a validated real-world misinformation transmission rate.
 
 ### Built With
 
@@ -304,6 +307,16 @@ In the animations:
 - **Gray circles**: Non-adopters
 - **Orange/red circles**: Adopters (darker = later rounds)
 - **Gray squares**: Blocked nodes (with blocking only)
+
+## Risk Scoring Framework
+To quantify the risk posture of each page, the framework assigns weighted scores based on graph analytics characteristics associated with influence, community structure, and network resilience.
+
+<div align="center">
+  <img src="./img/risk-score-features.png" style="height: 400px;">
+</div>
+
+> [!NOTE]
+> Nodes accumulate risk points based on graph-theoretic indicators linked to influence, connectivity, and information flow. Higher scores indicate pages that are more central to network operation and therefore may present greater systemic risk if compromised, removed, or used to amplify information throughout the network.
 
 ---
 
